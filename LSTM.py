@@ -27,27 +27,21 @@ tf.config.list_physical_devices('GPU')
 
 def build_model(hp):
     model = Sequential() # layers are added sequentially
-    model.add(LSTM(hp.Int('layer_1_neurons', min_value = 8, max_value = 64), 
+    for i in range(1, hp.Int("num_layers", 2, 6)):
+                model.add(LSTM(hp.Int('layer_neurons', min_value = 8, max_value = 64), 
                     activation = 'tanh', 
                     input_shape = (n_input, n_features),
                     return_sequences=True,
                     kernel_regularizer=regularizers.L1(0.001),
                     activity_regularizer=regularizers.L2(0.001)))
-    model.add(Dropout(hp.Choice('dropout_1', values = [0.01, 0.05, 0.1, 0.15])))
-    model.add(LSTM(hp.Int('layer_2_neurons', min_value = 8, max_value = 64), 
-                    activation = 'tanh', 
-                    input_shape = (n_input, n_features),
-                    return_sequences=True,
-                    kernel_regularizer=regularizers.L1(0.001),
-                    activity_regularizer=regularizers.L2(0.001)))
-    model.add(Dropout(hp.Choice('dropout_2', values = [0.01, 0.05, 0.1, 0.15])))
-    model.add(LSTM(hp.Int('layer_3_neurons', min_value = 8, max_value = 64), 
+                model.add(Dropout(hp.Choice('dropout_1', values = [0.01, 0.05, 0.1, 0.15])))
+    model.add(LSTM(hp.Int('final_layer_neurons', min_value = 8, max_value = 64), 
                     activation = 'tanh', 
                     input_shape = (n_input, n_features),
                     return_sequences=False,
                     kernel_regularizer=regularizers.L1(0.001),
                     activity_regularizer=regularizers.L2(0.001)))
-    model.add(Dropout(hp.Choice('dropout_3', values = [0.01, 0.05, 0.1, 0.15])))
+    model.add(Dropout(hp.Choice('dropout_final', values = [0.01, 0.05, 0.1, 0.15])))
     model.add(Dense(1))
     model.compile(optimizer = Adam(learning_rate=0.001,
                                    clipnorm = 1,
