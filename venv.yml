@@ -1,0 +1,16 @@
+---
+name: CSCI550
+channels:
+  - defaults
+dependencies:
+  - python==3.9
+  - tensorflow==2.10
+  - numpy
+  - pandas
+  - matplotlib
+  - keras
+  - scikit-learn
+  - tensorflow
+  - conda-forge
+  - cudatoolkit=11.2
+  - cudnn=8.1.0
