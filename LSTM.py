@@ -25,7 +25,6 @@ tf.config.list_physical_devices('GPU')
 # Setting Up LSTM Architecture ------------------------------------------
 # -----------------------------------------------------------------------
 
-
 def build_model(hp):
     model = Sequential() # layers are added sequentially
     model.add(LSTM(hp.Int('layer_1_neurons', min_value = 8, max_value = 64), 
@@ -130,7 +129,7 @@ best_model_AAPL.save("Models/Bayes_HT_AAPL.keras")
 # Load best model
 best_model_AAPL = tf.keras.models.load_model('Models/Bayes_HT_AAPL.keras')    
 
-# Training Best SSM Model
+# Training Best AAPL Model
 
 for j in range(12):
     
@@ -238,7 +237,7 @@ best_model_AMZN.save("Models/Bayes_HT_AMZN.keras")
 # Load best model
 best_model_AMZN = tf.keras.models.load_model('Models/Bayes_HT_AMZN.keras')    
 
-# Training Best SSM Model
+# Training Best AMZN Model
 
 for j in range(12):
     
@@ -346,7 +345,7 @@ best_model_CAT.save("Models/Bayes_HT_CAT.keras")
 # Load best model
 best_model_CAT = tf.keras.models.load_model('Models/Bayes_HT_CAT.keras')    
 
-# Training Best SSM Model
+# Training Best CAT Model
 
 for j in range(12):
     
@@ -454,7 +453,7 @@ best_model_NVDA.save("Models/Bayes_HT_NVDA.keras")
 # Load best model
 best_model_NVDA = tf.keras.models.load_model('Models/Bayes_HT_NVDA.keras')    
 
-# Training Best SSM Model
+# Training Best NVDA Model
 
 for j in range(12):
     
