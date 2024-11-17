@@ -126,43 +126,6 @@ for layer in best_model_AAPL.layers:
 # Save best model
 best_model_AAPL.save("Models/Bayes_HT_AAPL.keras")
 
-# Load best model
-best_model_AAPL = tf.keras.models.load_model('Models/Bayes_HT_AAPL.keras')    
-
-# Training Best AAPL Model
-
-for j in range(12):
-    
-   # Fitting model  
-   with tf.device('/device:GPU:0'): 
-        best_model_AAPL.fit(training, epochs = 1000, validation_data = validation)
-
-   duration = len(test)
-   test_predictions = []
-   first_eval_batch = scaled_train[-n_input:]
-   current_batch = first_eval_batch.reshape((1, n_input, n_features))
-   for i in range(duration):
-      current_pred = best_model_AAPL.predict(current_batch)[0]
-      test_predictions.append(current_pred) 
-      current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
-   true_predictions = stage_transformer.inverse_transform(test_predictions)
-   
-   fig = plt.figure(figsize=(10,5))
-   ax = fig.add_subplot(111)
-   plt.plot(test, color = 'b', label = "AAPL")
-   plt.plot(true_predictions, color = 'r', label = "LSTM Predictions")
-   plt.legend()
-   ax.set_ylabel("Response")
-   ax.set_xlabel("Day's Past Training Data")
-   ax.set_title("LSTM Predictions on Observed AAPL Stock")
-   plt.savefig(f"Model Diagnostics/AAPL_model_{j}.png")
-   plt.clf()
-   
-# Check when loss levels out
-loss_per_epoch = best_model_AAPL.history.history["loss"]
-plt.plot(range(len(loss_per_epoch)), loss_per_epoch)
-plt.show()
-
 # ---------------------------------------------------------------------
 # AMZN ----------------------------------------------------------------
 # ---------------------------------------------------------------------
@@ -233,43 +196,6 @@ for layer in best_model_AMZN.layers:
 
 # Save best model
 best_model_AMZN.save("Models/Bayes_HT_AMZN.keras")
-
-# Load best model
-best_model_AMZN = tf.keras.models.load_model('Models/Bayes_HT_AMZN.keras')    
-
-# Training Best AMZN Model
-
-for j in range(12):
-    
-   # Fitting model  
-   with tf.device('/device:GPU:0'): 
-        best_model_AMZN.fit(training, epochs = 1000, validation_data = validation)
-
-   duration = len(test)
-   test_predictions = []
-   first_eval_batch = scaled_train[-n_input:]
-   current_batch = first_eval_batch.reshape((1, n_input, n_features))
-   for i in range(duration):
-      current_pred = best_model_AMZN.predict(current_batch)[0]
-      test_predictions.append(current_pred) 
-      current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
-   true_predictions = stage_transformer.inverse_transform(test_predictions)
-   
-   fig = plt.figure(figsize=(10,5))
-   ax = fig.add_subplot(111)
-   plt.plot(test, color = 'b', label = "AMZN")
-   plt.plot(true_predictions, color = 'r', label = "LSTM Predictions")
-   plt.legend()
-   ax.set_ylabel("Response")
-   ax.set_xlabel("Day's Past Training Data")
-   ax.set_title("LSTM Predictions on Observed AMZN Stock")
-   plt.savefig(f"Model Diagnostics/AMZN_model_{j}.png")
-   plt.clf()
-   
-# Check when loss levels out
-loss_per_epoch = best_model_AMZN.history.history["loss"]
-plt.plot(range(len(loss_per_epoch)), loss_per_epoch)
-plt.show()
 
 # ---------------------------------------------------------------------
 # CAT -----------------------------------------------------------------
@@ -342,43 +268,6 @@ for layer in best_model_CAT.layers:
 # Save best model
 best_model_CAT.save("Models/Bayes_HT_CAT.keras")
 
-# Load best model
-best_model_CAT = tf.keras.models.load_model('Models/Bayes_HT_CAT.keras')    
-
-# Training Best CAT Model
-
-for j in range(12):
-    
-   # Fitting model  
-   with tf.device('/device:GPU:0'): 
-        best_model_CAT.fit(training, epochs = 1000, validation_data = validation)
-
-   duration = len(test)
-   test_predictions = []
-   first_eval_batch = scaled_train[-n_input:]
-   current_batch = first_eval_batch.reshape((1, n_input, n_features))
-   for i in range(duration):
-      current_pred = best_model_CAT.predict(current_batch)[0]
-      test_predictions.append(current_pred) 
-      current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
-   true_predictions = stage_transformer.inverse_transform(test_predictions)
-   
-   fig = plt.figure(figsize=(10,5))
-   ax = fig.add_subplot(111)
-   plt.plot(test, color = 'b', label = "CAT")
-   plt.plot(true_predictions, color = 'r', label = "LSTM Predictions")
-   plt.legend()
-   ax.set_ylabel("Response")
-   ax.set_xlabel("Day's Past Training Data")
-   ax.set_title("LSTM Predictions on Observed CAT Stock")
-   plt.savefig(f"Model Diagnostics/CAT_model_{j}.png")
-   plt.clf()
-   
-# Check when loss levels out
-loss_per_epoch = best_model_CAT.history.history["loss"]
-plt.plot(range(len(loss_per_epoch)), loss_per_epoch)
-plt.show()
-
 # ---------------------------------------------------------------------
 # NVDA ----------------------------------------------------------------
 # ---------------------------------------------------------------------
@@ -449,40 +338,3 @@ for layer in best_model_NVDA.layers:
 
 # Save best model
 best_model_NVDA.save("Models/Bayes_HT_NVDA.keras")
-
-# Load best model
-best_model_NVDA = tf.keras.models.load_model('Models/Bayes_HT_NVDA.keras')    
-
-# Training Best NVDA Model
-
-for j in range(12):
-    
-   # Fitting model  
-   with tf.device('/device:GPU:0'): 
-        best_model_NVDA.fit(training, epochs = 1000, validation_data = validation)
-
-   duration = len(test)
-   test_predictions = []
-   first_eval_batch = scaled_train[-n_input:]
-   current_batch = first_eval_batch.reshape((1, n_input, n_features))
-   for i in range(duration):
-      current_pred = best_model_NVDA.predict(current_batch)[0]
-      test_predictions.append(current_pred) 
-      current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
-   true_predictions = stage_transformer.inverse_transform(test_predictions)
-   
-   fig = plt.figure(figsize=(10,5))
-   ax = fig.add_subplot(111)
-   plt.plot(test, color = 'b', label = "NVDA")
-   plt.plot(true_predictions, color = 'r', label = "LSTM Predictions")
-   plt.legend()
-   ax.set_ylabel("Response")
-   ax.set_xlabel("Day's Past Training Data")
-   ax.set_title("LSTM Predictions on Observed NVDA Stock")
-   plt.savefig(f"Model Diagnostics/NVDA_model_{j}.png")
-   plt.clf()
-   
-# Check when loss levels out
-loss_per_epoch = best_model_NVDA.history.history["loss"]
-plt.plot(range(len(loss_per_epoch)), loss_per_epoch)
-plt.show()
