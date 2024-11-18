@@ -62,7 +62,15 @@ validation = TimeseriesGenerator(scaled_test, scaled_test,
                                 batch_size = 1000)
 
 # Load best model
-best_model_AAPL = tf.keras.models.load_model('Models/Bayes_HT_AAPL.keras')    
+best_model_AAPL = tf.keras.models.load_model('Models/Bayes_HT_AAPL.keras')  
+
+# Dimensions of model
+best_model_AAPL.summary()
+
+# Getting layer specifications
+for layer in best_model_AAPL.layers:
+    layer_config = layer.get_config()
+    print(layer_config)  
 
 # Training Best AAPL Model
 
@@ -70,9 +78,9 @@ for j in range(12):
     
    # Fitting model  
    with tf.device('/device:GPU:0'): 
-        best_model_AAPL.fit(training, epochs = 100, validation_data = validation)
+        best_model_AAPL.fit(training, epochs = 1000, validation_data = validation)
 
-   duration = len(test)
+   duration = 7
    test_predictions = []
    first_eval_batch = scaled_train[-n_input:]
    current_batch = first_eval_batch.reshape((1, n_input, n_features))
@@ -84,7 +92,7 @@ for j in range(12):
    
    fig = plt.figure(figsize=(10,5))
    ax = fig.add_subplot(111)
-   plt.plot(test, color = 'b', label = "AAPL")
+   plt.plot(test[0:duration], color = 'b', label = "AAPL")
    plt.plot(true_predictions, color = 'r', label = "LSTM Predictions")
    plt.legend()
    ax.set_ylabel("Response")
@@ -141,6 +149,14 @@ validation = TimeseriesGenerator(scaled_test, scaled_test,
 # Load best model
 best_model_AMZN = tf.keras.models.load_model('Models/Bayes_HT_AMZN.keras')    
 
+# Dimensions of model
+best_model_AMZN.summary()
+
+# Getting layer specifications
+for layer in best_model_AMZN.layers:
+    layer_config = layer.get_config()
+    print(layer_config)  
+
 # Training Best AMZN Model
 
 for j in range(12):
@@ -149,7 +165,7 @@ for j in range(12):
    with tf.device('/device:GPU:0'): 
         best_model_AMZN.fit(training, epochs = 1000, validation_data = validation)
 
-   duration = len(test)
+   duration = 7
    test_predictions = []
    first_eval_batch = scaled_train[-n_input:]
    current_batch = first_eval_batch.reshape((1, n_input, n_features))
@@ -161,7 +177,7 @@ for j in range(12):
    
    fig = plt.figure(figsize=(10,5))
    ax = fig.add_subplot(111)
-   plt.plot(test, color = 'b', label = "AMZN")
+   plt.plot(test[0:duration], color = 'b', label = "AMZN")
    plt.plot(true_predictions, color = 'r', label = "LSTM Predictions")
    plt.legend()
    ax.set_ylabel("Response")
@@ -218,6 +234,14 @@ validation = TimeseriesGenerator(scaled_test, scaled_test,
 # Load best model
 best_model_CAT = tf.keras.models.load_model('Models/Bayes_HT_CAT.keras')    
 
+# Dimensions of model
+best_model_CAT.summary()
+
+# Getting layer specifications
+for layer in best_model_CAT.layers:
+    layer_config = layer.get_config()
+    print(layer_config)  
+
 # Training Best CAT Model
 
 for j in range(12):
@@ -226,7 +250,7 @@ for j in range(12):
    with tf.device('/device:GPU:0'): 
         best_model_CAT.fit(training, epochs = 1000, validation_data = validation)
 
-   duration = len(test)
+   duration = 7
    test_predictions = []
    first_eval_batch = scaled_train[-n_input:]
    current_batch = first_eval_batch.reshape((1, n_input, n_features))
@@ -238,7 +262,7 @@ for j in range(12):
    
    fig = plt.figure(figsize=(10,5))
    ax = fig.add_subplot(111)
-   plt.plot(test, color = 'b', label = "CAT")
+   plt.plot(test[0:duration], color = 'b', label = "CAT")
    plt.plot(true_predictions, color = 'r', label = "LSTM Predictions")
    plt.legend()
    ax.set_ylabel("Response")
@@ -295,6 +319,14 @@ validation = TimeseriesGenerator(scaled_test, scaled_test,
 # Load best model
 best_model_NVDA = tf.keras.models.load_model('Models/Bayes_HT_NVDA.keras')    
 
+# Dimensions of model
+best_model_NVDA.summary()
+
+# Getting layer specifications
+for layer in best_model_NVDA.layers:
+    layer_config = layer.get_config()
+    print(layer_config)  
+
 # Training Best NVDA Model
 
 for j in range(12):
@@ -303,7 +335,7 @@ for j in range(12):
    with tf.device('/device:GPU:0'): 
         best_model_NVDA.fit(training, epochs = 1000, validation_data = validation)
 
-   duration = len(test)
+   duration = 7
    test_predictions = []
    first_eval_batch = scaled_train[-n_input:]
    current_batch = first_eval_batch.reshape((1, n_input, n_features))
@@ -315,7 +347,7 @@ for j in range(12):
    
    fig = plt.figure(figsize=(10,5))
    ax = fig.add_subplot(111)
-   plt.plot(test, color = 'b', label = "NVDA")
+   plt.plot(test[0:duration], color = 'b', label = "NVDA")
    plt.plot(true_predictions, color = 'r', label = "LSTM Predictions")
    plt.legend()
    ax.set_ylabel("Response")
