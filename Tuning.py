@@ -63,6 +63,7 @@ def build_model(hp):
 # Reading in data
 AAPL = pd.read_csv("Data/AAPL.csv",index_col= "Date", parse_dates = True)
 AAPL['Close/Last'] = AAPL['Close/Last'].str.replace('$', '')
+AAPL = AAPL.reindex(index=AAPL.index[::-1])
 
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(AAPL['Close/Last'], model='additive', period = 365)
@@ -78,7 +79,7 @@ AAPL = decomposition.seasonal
 train_test_split = 0.90
 train_size = int(len(AAPL) * train_test_split) # Use 90% of data for training
 train = AAPL.iloc[0:train_size]['Close/Last'] # Selecting closing price as target
-test = AAPL.iloc[train_size:len(AAPL)] ['Close/Last']
+test = AAPL.iloc[train_size:len(AAPL)]['Close/Last']
 
 # Reshaping data sets from Panda Series to 1D Array
 train = train.values.flatten()
@@ -144,6 +145,7 @@ best_model_AAPL.save("Models/Bayes_HT_AAPL.keras")
 # Reading in data
 AMZN = pd.read_csv("Data/AMZN.csv",index_col= "Date", parse_dates = True)
 AMZN['Close/Last'] = AMZN['Close/Last'].str.replace('$', '')
+AMZN = AMZN.reindex(index=AMZN.index[::-1])
 
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(AMZN['Close/Last'], model='additive', period = 365)
@@ -225,6 +227,7 @@ best_model_AMZN.save("Models/Bayes_HT_AMZN.keras")
 # Reading in data
 CAT = pd.read_csv("Data/CAT.csv",index_col= "Date", parse_dates = True)
 CAT['Close/Last'] = CAT['Close/Last'].str.replace('$', '')
+CAT = CAT.reindex(index=CAT.index[::-1])
 
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(CAT['Close/Last'], model='additive', period = 365)
@@ -306,6 +309,7 @@ best_model_CAT.save("Models/Bayes_HT_CAT.keras")
 # Reading in data
 NVDA = pd.read_csv("Data/NVDA.csv",index_col= "Date", parse_dates = True)
 NVDA['Close/Last'] = NVDA['Close/Last'].str.replace('$', '')
+NVDA = NVDA.reindex(index=NVDA.index[::-1])
 
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(NVDA['Close/Last'], model='additive', period = 365)

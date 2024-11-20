@@ -29,6 +29,7 @@ tf.config.list_physical_devices('GPU')
 # Reading in data
 AAPL = pd.read_csv("Data/AAPL.csv",index_col= "Date", parse_dates = True)
 AAPL['Close/Last'] = AAPL['Close/Last'].str.replace('$', '')
+AAPL = AAPL.reindex(index=AAPL.index[::-1])
 
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(AAPL['Close/Last'], model='additive', period = 365)
@@ -89,9 +90,9 @@ for j in range(12):
     
    # Fitting model  
    with tf.device('/device:GPU:0'): 
-        best_model_AAPL.fit(training, epochs = 100, validation_data = validation)
+        best_model_AAPL.fit(training, epochs = 1000, validation_data = validation)
 
-   duration = 7
+   duration = 14 # two week predictions
    test_predictions = []
    first_eval_batch = scaled_train[-n_input:]
    current_batch = first_eval_batch.reshape((1, n_input, n_features))
@@ -228,6 +229,8 @@ plt.show()
 # Reading in data
 AMZN = pd.read_csv("Data/AMZN.csv",index_col= "Date", parse_dates = True)
 AMZN['Close/Last'] = AMZN['Close/Last'].str.replace('$', '')
+AMZN = AMZN.reindex(index=AMZN.index[::-1])
+
 
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(AMZN['Close/Last'], model='additive', period = 365)
@@ -419,6 +422,8 @@ plt.show()
 # Reading in data
 CAT = pd.read_csv("Data/CAT.csv",index_col= "Date", parse_dates = True)
 CAT['Close/Last'] = CAT['Close/Last'].str.replace('$', '')
+CAT = CAT.reindex(index=CAT.index[::-1])
+
 
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(CAT['Close/Last'], model='additive', period = 365)
@@ -611,6 +616,7 @@ plt.show()
 # Reading in data
 NVDA = pd.read_csv("Data/NVDA.csv",index_col= "Date", parse_dates = True)
 NVDA['Close/Last'] = NVDA['Close/Last'].str.replace('$', '')
+NVDA = NVDA.reindex(index=NVDA.index[::-1])
 
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(NVDA['Close/Last'], model='additive', period = 365)

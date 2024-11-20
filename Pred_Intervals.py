@@ -29,6 +29,7 @@ tf.config.list_physical_devices('GPU')
 # Reading in data
 AAPL = pd.read_csv("Data/AAPL.csv",index_col= "Date", parse_dates = True)
 AAPL['Close/Last'] = AAPL['Close/Last'].str.replace('$', '')
+AAPL = AAPL.reindex(index=AAPL.index[::-1])
 
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(AAPL['Close/Last'], model='additive', period = 365)
@@ -162,6 +163,7 @@ df.to_csv("AAPL_Pred_Intervals.csv")
 # Reading in data
 AMZN = pd.read_csv("Data/AMZN.csv",index_col= "Date", parse_dates = True)
 AMZN['Close/Last'] = AMZN['Close/Last'].str.replace('$', '')
+AMZN = AAPL.reindex(index=AMZN.index[::-1])
 
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(AMZN['Close/Last'], model='additive', period = 365)
@@ -296,6 +298,7 @@ df.to_csv("AMZN_Pred_Intervals.csv")
 # Reading in data
 CAT = pd.read_csv("Data/CAT.csv",index_col= "Date", parse_dates = True)
 CAT['Close/Last'] = CAT['Close/Last'].str.replace('$', '')
+CAT = CAT.reindex(index=CAT.index[::-1])
 
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(CAT['Close/Last'], model='additive', period = 365)
@@ -430,6 +433,7 @@ df.to_csv("CAT_Pred_Intervals.csv")
 # Reading in data
 NVDA = pd.read_csv("Data/NVDA.csv",index_col= "Date", parse_dates = True)
 NVDA['Close/Last'] = NVDA['Close/Last'].str.replace('$', '')
+NVDA = NVDA.reindex(index=NVDA.index[::-1])
 
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(NVDA['Close/Last'], model='additive', period = 365)
