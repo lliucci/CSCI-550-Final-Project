@@ -35,7 +35,7 @@ AAPL = AAPL.reindex(index=AAPL.index[::-1])
 decomposition = sm.tsa.seasonal_decompose(AAPL['Close/Last'], model='additive', period = 365)
 
 # Plot the components
-decomposition.plot()
+# decomposition.plot()
 # plt.show()
 
 # Extract stationary TS
@@ -132,9 +132,9 @@ for j in range(5):
     
     for z in range(5):
       with tf.device('/device:GPU:0'): 
-         model.fit(training, epochs = 100, validation_data = validation)
+         model.fit(training, epochs = 500, validation_data = validation)
 
-      duration = 7
+      duration = 14
       test_predictions = []
       first_eval_batch = scaled_train[-n_input:]
       current_batch = first_eval_batch.reshape((1, n_input, n_features))
@@ -236,7 +236,7 @@ AMZN = AMZN.reindex(index=AMZN.index[::-1])
 decomposition = sm.tsa.seasonal_decompose(AMZN['Close/Last'], model='additive', period = 365)
 
 # Plot the components
-decomposition.plot()
+# decomposition.plot()
 # plt.show()
 
 # Extract stationary TS
@@ -325,7 +325,7 @@ for j in range(5):
     
     for z in range(5):
       with tf.device('/device:GPU:0'): 
-         model.fit(training, epochs = 100, validation_data = validation)
+         model.fit(training, epochs = 500, validation_data = validation)
 
       duration = 7
       test_predictions = []
@@ -429,7 +429,7 @@ CAT = CAT.reindex(index=CAT.index[::-1])
 decomposition = sm.tsa.seasonal_decompose(CAT['Close/Last'], model='additive', period = 365)
 
 # Plot the components
-decomposition.plot()
+# decomposition.plot()
 # plt.show()
 
 # Extract stationary TS
@@ -519,7 +519,7 @@ for j in range(5):
     
     for z in range(5):
       with tf.device('/device:GPU:0'): 
-         model.fit(training, epochs = 100, validation_data = validation)
+         model.fit(training, epochs = 500, validation_data = validation)
 
       duration = 7
       test_predictions = []
@@ -622,7 +622,7 @@ NVDA = NVDA.reindex(index=NVDA.index[::-1])
 decomposition = sm.tsa.seasonal_decompose(NVDA['Close/Last'], model='additive', period = 365)
 
 # Plot the components
-decomposition.plot()
+# decomposition.plot()
 # plt.show()
 
 # Extract stationary TS
@@ -712,7 +712,7 @@ for j in range(5):
     
     for z in range(5):
       with tf.device('/device:GPU:0'): 
-         model.fit(training, epochs = 100, validation_data = validation)
+         model.fit(training, epochs = 500, validation_data = validation)
 
       duration = 7
       test_predictions = []
