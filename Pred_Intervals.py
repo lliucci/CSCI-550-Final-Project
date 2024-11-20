@@ -31,10 +31,10 @@ AAPL['Close/Last'] = AAPL['Close/Last'].str.replace('$', '')
 
 # Splitting dataset for cross-validation
 train_test_split = 0.9
-true_train_size = int(len(AAPL) * train_test_split) # Use 90% of data for training
+train_size = int(len(AAPL) * train_test_split) # Use 90% of data for training
 true_train = AAPL.iloc[0:train_size]['Close/Last'] # Selecting closing price as target
 true_test = AAPL.iloc[train_size:len(AAPL)] ['Close/Last']
-true_test = pd.to_numeric(test)
+true_test = pd.to_numeric(true_test)
 
 # Reshaping data sets from Panda Series to 1D Array
 true_train = true_train.values.flatten()

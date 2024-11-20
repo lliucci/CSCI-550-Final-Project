@@ -78,7 +78,7 @@ for j in range(12):
     
    # Fitting model  
    with tf.device('/device:GPU:0'): 
-        best_model_AAPL.fit(training, epochs = 1000, validation_data = validation)
+        best_model_AAPL.fit(training, epochs = 300, validation_data = validation)
 
    duration = 7
    test_predictions = []
@@ -98,12 +98,116 @@ for j in range(12):
    ax.set_ylabel("Response")
    ax.set_xlabel("Day's Past Training Data")
    ax.set_title("LSTM Predictions on Observed AAPL Stock")
-   plt.savefig(f"Training/AAPL_model_{j}.png")
+   plt.savefig(f"Training/Local/AAPL_model_{j}.png")
    plt.clf()
-   
+
+
+# Fitting model without loop
+with tf.device('/device:GPU:0'): 
+   best_model_AAPL.fit(training, epochs = 500, validation_data = validation)
+
 # Check when loss levels out
 loss_per_epoch = best_model_AAPL.history.history["loss"]
-plt.plot(range(len(loss_per_epoch)), loss_per_epoch)
+val_loss_per_epoch = best_model_AAPL.history.history['val_loss']
+plt.plot(range(len(loss_per_epoch)), loss_per_epoch, color = 'r', label = "Training Loss")
+plt.plot(range(len(loss_per_epoch)), val_loss_per_epoch, color = 'b', label = "Validation Loss")
+plt.legend()
+plt.show()
+
+# Train 5 different models with same structure
+for j in range(5):
+    model = tf.keras.models.load_model('Models/Bayes_HT_AAPL.keras') 
+    
+    for z in range(5):
+      with tf.device('/device:GPU:0'): 
+         model.fit(training, epochs = 500, validation_data = validation)
+
+      duration = 7
+      test_predictions = []
+      first_eval_batch = scaled_train[-n_input:]
+      current_batch = first_eval_batch.reshape((1, n_input, n_features))
+      for i in range(duration):
+         current_pred = best_model_AAPL.predict(current_batch)[0]
+         test_predictions.append(current_pred) 
+         current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
+      true_predictions = stage_transformer.inverse_transform(test_predictions)
+      locals()[f'Model_{j}_Predictions_Gen_{z}'] = true_predictions
+
+# Comparing models in generation 1
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test, color = 'b', label = "Observed")
+plt.plot(Model_0_Predictions_Gen_0, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_0, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_0, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_0, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_0, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Depth (feet)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 1)")
+plt.show()
+
+# Comparing models in generation 2
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test, color = 'b', label = "Observed")
+plt.plot(Model_0_Predictions_Gen_1, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_1, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_1, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_1, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_1, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Depth (feet)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 2)")
+plt.show()
+
+# Comparing models in generation 3
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test, color = 'b', label = "Observed")
+plt.plot(Model_0_Predictions_Gen_2, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_2, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_2, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_2, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_2, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Depth (feet)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 3)")
+plt.show()
+
+
+# Comparing models in generation 4
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test, color = 'b', label = "Observed")
+plt.plot(Model_0_Predictions_Gen_3, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_3, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_3, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_3, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_3, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Depth (feet)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 4)")
+plt.show()
+
+
+# Comparing models in generation 5
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test, color = 'b', label = "Observed")
+plt.plot(Model_0_Predictions_Gen_4, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_4, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_4, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_4, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_4, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Depth (feet)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 5)")
 plt.show()
 
 # ---------------------------------------------------------------------
