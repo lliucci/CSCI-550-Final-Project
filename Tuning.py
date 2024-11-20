@@ -4,6 +4,7 @@
 
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from keras.preprocessing.sequence import TimeseriesGenerator
 from sklearn.preprocessing import RobustScaler
@@ -62,6 +63,16 @@ def build_model(hp):
 # Reading in data
 AAPL = pd.read_csv("Data/AAPL.csv",index_col= "Date", parse_dates = True)
 AAPL['Close/Last'] = AAPL['Close/Last'].str.replace('$', '')
+
+# Decomposing for stationarity
+decomposition = sm.tsa.seasonal_decompose(AAPL['Close/Last'], model='additive', period = 365)
+
+# Plot the components
+decomposition.plot()
+# plt.show()
+
+# Extract stationary TS
+AAPL = decomposition.seasonal
 
 # Splitting dataset for cross-validation
 train_test_split = 0.90
@@ -134,6 +145,16 @@ best_model_AAPL.save("Models/Bayes_HT_AAPL.keras")
 AMZN = pd.read_csv("Data/AMZN.csv",index_col= "Date", parse_dates = True)
 AMZN['Close/Last'] = AMZN['Close/Last'].str.replace('$', '')
 
+# Decomposing for stationarity
+decomposition = sm.tsa.seasonal_decompose(AMZN['Close/Last'], model='additive', period = 365)
+
+# Plot the components
+decomposition.plot()
+# plt.show()
+
+# Extract stationary TS
+AMZN = decomposition.seasonal
+
 # Splitting dataset for cross-validation
 train_test_split = 0.90
 train_size = int(len(AMZN) * train_test_split) # Use 90% of data for training
@@ -205,6 +226,16 @@ best_model_AMZN.save("Models/Bayes_HT_AMZN.keras")
 CAT = pd.read_csv("Data/CAT.csv",index_col= "Date", parse_dates = True)
 CAT['Close/Last'] = CAT['Close/Last'].str.replace('$', '')
 
+# Decomposing for stationarity
+decomposition = sm.tsa.seasonal_decompose(CAT['Close/Last'], model='additive', period = 365)
+
+# Plot the components
+decomposition.plot()
+# plt.show()
+
+# Extract stationary TS
+CAT = decomposition.seasonal
+
 # Splitting dataset for cross-validation
 train_test_split = 0.90
 train_size = int(len(CAT) * train_test_split) # Use 90% of data for training
@@ -275,6 +306,16 @@ best_model_CAT.save("Models/Bayes_HT_CAT.keras")
 # Reading in data
 NVDA = pd.read_csv("Data/NVDA.csv",index_col= "Date", parse_dates = True)
 NVDA['Close/Last'] = NVDA['Close/Last'].str.replace('$', '')
+
+# Decomposing for stationarity
+decomposition = sm.tsa.seasonal_decompose(NVDA['Close/Last'], model='additive', period = 365)
+
+# Plot the components
+decomposition.plot()
+# plt.show()
+
+# Extract stationary TS
+NVDA = decomposition.seasonal
 
 # Splitting dataset for cross-validation
 train_test_split = 0.90

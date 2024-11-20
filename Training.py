@@ -4,6 +4,7 @@
 
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from keras.preprocessing.sequence import TimeseriesGenerator
 from sklearn.preprocessing import RobustScaler
@@ -29,11 +30,21 @@ tf.config.list_physical_devices('GPU')
 AAPL = pd.read_csv("Data/AAPL.csv",index_col= "Date", parse_dates = True)
 AAPL['Close/Last'] = AAPL['Close/Last'].str.replace('$', '')
 
+# Decomposing for stationarity
+decomposition = sm.tsa.seasonal_decompose(AAPL['Close/Last'], model='additive', period = 365)
+
+# Plot the components
+decomposition.plot()
+# plt.show()
+
+# Extract stationary TS
+AAPL = decomposition.seasonal
+
 # Splitting dataset for cross-validation
 train_test_split = 0.9
 train_size = int(len(AAPL) * train_test_split) # Use 90% of data for training
-train = AAPL.iloc[0:train_size]['Close/Last'] # Selecting closing price as target
-test = AAPL.iloc[train_size:len(AAPL)] ['Close/Last']
+train = AAPL.iloc[0:train_size] # Selecting closing price as target
+test = AAPL.iloc[train_size:len(AAPL)]
 test = pd.to_numeric(test)
 
 # Reshaping data sets from Panda Series to 1D Array
@@ -78,7 +89,7 @@ for j in range(12):
     
    # Fitting model  
    with tf.device('/device:GPU:0'): 
-        best_model_AAPL.fit(training, epochs = 300, validation_data = validation)
+        best_model_AAPL.fit(training, epochs = 100, validation_data = validation)
 
    duration = 7
    test_predictions = []
@@ -120,14 +131,14 @@ for j in range(5):
     
     for z in range(5):
       with tf.device('/device:GPU:0'): 
-         model.fit(training, epochs = 500, validation_data = validation)
+         model.fit(training, epochs = 100, validation_data = validation)
 
       duration = 7
       test_predictions = []
       first_eval_batch = scaled_train[-n_input:]
       current_batch = first_eval_batch.reshape((1, n_input, n_features))
       for i in range(duration):
-         current_pred = best_model_AAPL.predict(current_batch)[0]
+         current_pred = model.predict(current_batch)[0]
          test_predictions.append(current_pred) 
          current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
       true_predictions = stage_transformer.inverse_transform(test_predictions)
@@ -136,14 +147,14 @@ for j in range(5):
 # Comparing models in generation 1
 fig = plt.figure(figsize=(10,5))
 ax = fig.add_subplot(111)
-plt.plot(test, color = 'b', label = "Observed")
+plt.plot(test[0:duration], color = 'b', label = "AAPL Stock")
 plt.plot(Model_0_Predictions_Gen_0, color = 'r', label = "Model 1", linestyle = 'dashed')
 plt.plot(Model_1_Predictions_Gen_0, color = 'y', label = "Model 2", linestyle = 'dashed')
 plt.plot(Model_2_Predictions_Gen_0, color = 'g', label = "Model 3", linestyle = 'dashed')
 plt.plot(Model_3_Predictions_Gen_0, color = 'c', label = "Model 4", linestyle = 'dashed')
 plt.plot(Model_4_Predictions_Gen_0, color = 'm', label = "Model 5", linestyle = 'dashed')
 plt.legend()
-ax.set_ylabel("Depth (feet)")
+ax.set_ylabel("Closing Price ($)")
 ax.set_xlabel("Day's Past Training Data")
 ax.set_title("Comparison of Forecasts (Generation 1)")
 plt.show()
@@ -151,14 +162,14 @@ plt.show()
 # Comparing models in generation 2
 fig = plt.figure(figsize=(10,5))
 ax = fig.add_subplot(111)
-plt.plot(test, color = 'b', label = "Observed")
+plt.plot(test[0:duration], color = 'b', label = "AAPL Stock")
 plt.plot(Model_0_Predictions_Gen_1, color = 'r', label = "Model 1", linestyle = 'dashed')
 plt.plot(Model_1_Predictions_Gen_1, color = 'y', label = "Model 2", linestyle = 'dashed')
 plt.plot(Model_2_Predictions_Gen_1, color = 'g', label = "Model 3", linestyle = 'dashed')
 plt.plot(Model_3_Predictions_Gen_1, color = 'c', label = "Model 4", linestyle = 'dashed')
 plt.plot(Model_4_Predictions_Gen_1, color = 'm', label = "Model 5", linestyle = 'dashed')
 plt.legend()
-ax.set_ylabel("Depth (feet)")
+ax.set_ylabel("Closing Price ($)")
 ax.set_xlabel("Day's Past Training Data")
 ax.set_title("Comparison of Forecasts (Generation 2)")
 plt.show()
@@ -166,14 +177,14 @@ plt.show()
 # Comparing models in generation 3
 fig = plt.figure(figsize=(10,5))
 ax = fig.add_subplot(111)
-plt.plot(test, color = 'b', label = "Observed")
+plt.plot(test[0:duration], color = 'b', label = "AAPL Stock")
 plt.plot(Model_0_Predictions_Gen_2, color = 'r', label = "Model 1", linestyle = 'dashed')
 plt.plot(Model_1_Predictions_Gen_2, color = 'y', label = "Model 2", linestyle = 'dashed')
 plt.plot(Model_2_Predictions_Gen_2, color = 'g', label = "Model 3", linestyle = 'dashed')
 plt.plot(Model_3_Predictions_Gen_2, color = 'c', label = "Model 4", linestyle = 'dashed')
 plt.plot(Model_4_Predictions_Gen_2, color = 'm', label = "Model 5", linestyle = 'dashed')
 plt.legend()
-ax.set_ylabel("Depth (feet)")
+ax.set_ylabel("Closing Price ($)")
 ax.set_xlabel("Day's Past Training Data")
 ax.set_title("Comparison of Forecasts (Generation 3)")
 plt.show()
@@ -182,14 +193,14 @@ plt.show()
 # Comparing models in generation 4
 fig = plt.figure(figsize=(10,5))
 ax = fig.add_subplot(111)
-plt.plot(test, color = 'b', label = "Observed")
+plt.plot(test[0:duration], color = 'b', label = "AAPL Stock")
 plt.plot(Model_0_Predictions_Gen_3, color = 'r', label = "Model 1", linestyle = 'dashed')
 plt.plot(Model_1_Predictions_Gen_3, color = 'y', label = "Model 2", linestyle = 'dashed')
 plt.plot(Model_2_Predictions_Gen_3, color = 'g', label = "Model 3", linestyle = 'dashed')
 plt.plot(Model_3_Predictions_Gen_3, color = 'c', label = "Model 4", linestyle = 'dashed')
 plt.plot(Model_4_Predictions_Gen_3, color = 'm', label = "Model 5", linestyle = 'dashed')
 plt.legend()
-ax.set_ylabel("Depth (feet)")
+ax.set_ylabel("Closing Price ($)")
 ax.set_xlabel("Day's Past Training Data")
 ax.set_title("Comparison of Forecasts (Generation 4)")
 plt.show()
@@ -198,14 +209,14 @@ plt.show()
 # Comparing models in generation 5
 fig = plt.figure(figsize=(10,5))
 ax = fig.add_subplot(111)
-plt.plot(test, color = 'b', label = "Observed")
+plt.plot(test[0:duration], color = 'b', label = "AAPL Stock")
 plt.plot(Model_0_Predictions_Gen_4, color = 'r', label = "Model 1", linestyle = 'dashed')
 plt.plot(Model_1_Predictions_Gen_4, color = 'y', label = "Model 2", linestyle = 'dashed')
 plt.plot(Model_2_Predictions_Gen_4, color = 'g', label = "Model 3", linestyle = 'dashed')
 plt.plot(Model_3_Predictions_Gen_4, color = 'c', label = "Model 4", linestyle = 'dashed')
 plt.plot(Model_4_Predictions_Gen_4, color = 'm', label = "Model 5", linestyle = 'dashed')
 plt.legend()
-ax.set_ylabel("Depth (feet)")
+ax.set_ylabel("Closing Price ($)")
 ax.set_xlabel("Day's Past Training Data")
 ax.set_title("Comparison of Forecasts (Generation 5)")
 plt.show()
@@ -217,6 +228,16 @@ plt.show()
 # Reading in data
 AMZN = pd.read_csv("Data/AMZN.csv",index_col= "Date", parse_dates = True)
 AMZN['Close/Last'] = AMZN['Close/Last'].str.replace('$', '')
+
+# Decomposing for stationarity
+decomposition = sm.tsa.seasonal_decompose(AMZN['Close/Last'], model='additive', period = 365)
+
+# Plot the components
+decomposition.plot()
+# plt.show()
+
+# Extract stationary TS
+AMZN = decomposition.seasonal
 
 # Splitting dataset for cross-validation
 train_test_split = 0.9
@@ -295,6 +316,102 @@ loss_per_epoch = best_model_AMZN.history.history["loss"]
 plt.plot(range(len(loss_per_epoch)), loss_per_epoch)
 plt.show()
 
+# Train 5 different models with same structure
+for j in range(5):
+    model = tf.keras.models.load_model('Models/Bayes_HT_AMZN.keras') 
+    
+    for z in range(5):
+      with tf.device('/device:GPU:0'): 
+         model.fit(training, epochs = 100, validation_data = validation)
+
+      duration = 7
+      test_predictions = []
+      first_eval_batch = scaled_train[-n_input:]
+      current_batch = first_eval_batch.reshape((1, n_input, n_features))
+      for i in range(duration):
+         current_pred = model.predict(current_batch)[0]
+         test_predictions.append(current_pred) 
+         current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
+      true_predictions = stage_transformer.inverse_transform(test_predictions)
+      locals()[f'Model_{j}_Predictions_Gen_{z}'] = true_predictions
+
+# Comparing models in generation 1
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "AMZN Stock")
+plt.plot(Model_0_Predictions_Gen_0, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_0, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_0, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_0, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_0, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 1)")
+plt.show()
+
+# Comparing models in generation 2
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "AMZN Stock")
+plt.plot(Model_0_Predictions_Gen_1, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_1, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_1, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_1, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_1, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 2)")
+plt.show()
+
+# Comparing models in generation 3
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "AMZN Stock")
+plt.plot(Model_0_Predictions_Gen_2, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_2, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_2, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_2, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_2, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 3)")
+plt.show()
+
+
+# Comparing models in generation 4
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "AMZN Stock")
+plt.plot(Model_0_Predictions_Gen_3, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_3, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_3, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_3, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_3, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 4)")
+plt.show()
+
+
+# Comparing models in generation 5
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "AMZN Stock")
+plt.plot(Model_0_Predictions_Gen_4, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_4, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_4, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_4, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_4, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 5)")
+plt.show()
+
 # ---------------------------------------------------------------------
 # CAT -----------------------------------------------------------------
 # ---------------------------------------------------------------------
@@ -302,6 +419,16 @@ plt.show()
 # Reading in data
 CAT = pd.read_csv("Data/CAT.csv",index_col= "Date", parse_dates = True)
 CAT['Close/Last'] = CAT['Close/Last'].str.replace('$', '')
+
+# Decomposing for stationarity
+decomposition = sm.tsa.seasonal_decompose(CAT['Close/Last'], model='additive', period = 365)
+
+# Plot the components
+decomposition.plot()
+# plt.show()
+
+# Extract stationary TS
+CAT = decomposition.seasonal
 
 # Splitting dataset for cross-validation
 train_test_split = 0.9
@@ -380,6 +507,103 @@ loss_per_epoch = best_model_CAT.history.history["loss"]
 plt.plot(range(len(loss_per_epoch)), loss_per_epoch)
 plt.show()
 
+
+# Train 5 different models with same structure
+for j in range(5):
+    model = tf.keras.models.load_model('Models/Bayes_HT_CAT.keras') 
+    
+    for z in range(5):
+      with tf.device('/device:GPU:0'): 
+         model.fit(training, epochs = 100, validation_data = validation)
+
+      duration = 7
+      test_predictions = []
+      first_eval_batch = scaled_train[-n_input:]
+      current_batch = first_eval_batch.reshape((1, n_input, n_features))
+      for i in range(duration):
+         current_pred = model.predict(current_batch)[0]
+         test_predictions.append(current_pred) 
+         current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
+      true_predictions = stage_transformer.inverse_transform(test_predictions)
+      locals()[f'Model_{j}_Predictions_Gen_{z}'] = true_predictions
+
+# Comparing models in generation 1
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "CAT Stock")
+plt.plot(Model_0_Predictions_Gen_0, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_0, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_0, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_0, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_0, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 1)")
+plt.show()
+
+# Comparing models in generation 2
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "CAT Stock")
+plt.plot(Model_0_Predictions_Gen_1, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_1, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_1, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_1, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_1, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 2)")
+plt.show()
+
+# Comparing models in generation 3
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "CAT Stock")
+plt.plot(Model_0_Predictions_Gen_2, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_2, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_2, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_2, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_2, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 3)")
+plt.show()
+
+
+# Comparing models in generation 4
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "CAT Stock")
+plt.plot(Model_0_Predictions_Gen_3, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_3, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_3, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_3, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_3, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 4)")
+plt.show()
+
+
+# Comparing models in generation 5
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "CAT Stock")
+plt.plot(Model_0_Predictions_Gen_4, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_4, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_4, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_4, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_4, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 5)")
+plt.show()
+
 # ---------------------------------------------------------------------
 # NVDA ----------------------------------------------------------------
 # ---------------------------------------------------------------------
@@ -387,6 +611,16 @@ plt.show()
 # Reading in data
 NVDA = pd.read_csv("Data/NVDA.csv",index_col= "Date", parse_dates = True)
 NVDA['Close/Last'] = NVDA['Close/Last'].str.replace('$', '')
+
+# Decomposing for stationarity
+decomposition = sm.tsa.seasonal_decompose(NVDA['Close/Last'], model='additive', period = 365)
+
+# Plot the components
+decomposition.plot()
+# plt.show()
+
+# Extract stationary TS
+NVDA = decomposition.seasonal
 
 # Splitting dataset for cross-validation
 train_test_split = 0.9
@@ -463,4 +697,101 @@ for j in range(12):
 # Check when loss levels out
 loss_per_epoch = best_model_NVDA.history.history["loss"]
 plt.plot(range(len(loss_per_epoch)), loss_per_epoch)
+plt.show()
+
+
+# Train 5 different models with same structure
+for j in range(5):
+    model = tf.keras.models.load_model('Models/Bayes_HT_NVDA.keras') 
+    
+    for z in range(5):
+      with tf.device('/device:GPU:0'): 
+         model.fit(training, epochs = 100, validation_data = validation)
+
+      duration = 7
+      test_predictions = []
+      first_eval_batch = scaled_train[-n_input:]
+      current_batch = first_eval_batch.reshape((1, n_input, n_features))
+      for i in range(duration):
+         current_pred = model.predict(current_batch)[0]
+         test_predictions.append(current_pred) 
+         current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
+      true_predictions = stage_transformer.inverse_transform(test_predictions)
+      locals()[f'Model_{j}_Predictions_Gen_{z}'] = true_predictions
+
+# Comparing models in generation 1
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "NVDA Stock")
+plt.plot(Model_0_Predictions_Gen_0, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_0, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_0, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_0, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_0, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 1)")
+plt.show()
+
+# Comparing models in generation 2
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "NVDA Stock")
+plt.plot(Model_0_Predictions_Gen_1, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_1, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_1, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_1, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_1, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 2)")
+plt.show()
+
+# Comparing models in generation 3
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "NVDA Stock")
+plt.plot(Model_0_Predictions_Gen_2, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_2, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_2, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_2, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_2, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 3)")
+plt.show()
+
+
+# Comparing models in generation 4
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "NVDA Stock")
+plt.plot(Model_0_Predictions_Gen_3, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_3, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_3, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_3, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_3, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 4)")
+plt.show()
+
+
+# Comparing models in generation 5
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(test[0:duration], color = 'b', label = "NVDA Stock")
+plt.plot(Model_0_Predictions_Gen_4, color = 'r', label = "Model 1", linestyle = 'dashed')
+plt.plot(Model_1_Predictions_Gen_4, color = 'y', label = "Model 2", linestyle = 'dashed')
+plt.plot(Model_2_Predictions_Gen_4, color = 'g', label = "Model 3", linestyle = 'dashed')
+plt.plot(Model_3_Predictions_Gen_4, color = 'c', label = "Model 4", linestyle = 'dashed')
+plt.plot(Model_4_Predictions_Gen_4, color = 'm', label = "Model 5", linestyle = 'dashed')
+plt.legend()
+ax.set_ylabel("Closing Price ($)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts (Generation 5)")
 plt.show()
