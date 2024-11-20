@@ -34,18 +34,14 @@ AAPL = AAPL.reindex(index=AAPL.index[::-1])
 # Decomposing for stationarity
 decomposition = sm.tsa.seasonal_decompose(AAPL['Close/Last'], model='additive', period = 365)
 
-# Plot the components
-decomposition.plot()
-# plt.show()
-
 # Extract stationary TS
 AAPL = decomposition.seasonal
 
 # Splitting dataset for cross-validation
 train_test_split = 0.9
 train_size = int(len(AAPL) * train_test_split) # Use 90% of data for training
-true_train = AAPL.iloc[0:train_size]['Close/Last'] # Selecting closing price as target
-true_test = AAPL.iloc[train_size:len(AAPL)] ['Close/Last']
+true_train = AAPL.iloc[0:train_size] # Selecting closing price as target
+true_test = AAPL.iloc[train_size:len(AAPL)]
 true_test = pd.to_numeric(true_test)
 
 # Reshaping data sets from Panda Series to 1D Array
@@ -60,9 +56,15 @@ stage_transformer = stage_transformer.fit(true_train)
 scaled_true_train = stage_transformer.transform(true_train)
 scaled_true_test = stage_transformer.transform(true_test)
 
+# Instantiate the bootstrap object
+n_bootstraps = 1
+block_length = 31
+rng = 42
+mbb = MovingBlockBootstrap(n_bootstraps=n_bootstraps, rng=rng, block_length=block_length)
+
 Boots = []
 
-for j in range(100):
+for j in range(10):
     
     # Generate bootstrapped samples
     return_indices = False
@@ -98,46 +100,25 @@ for j in range(100):
     # Define inputs  
     n_input = 31
     n_features = 1
-    generator = TimeseriesGenerator(scaled_train, scaled_train, 
-                                    length = n_input,
-                                    batch_size = 5000)
+    
+  # Define train and test
+    training = TimeseriesGenerator(scaled_train, scaled_train, 
+                                length = n_input,
+                                batch_size = 5000)
 
-    model = Sequential() # layers are added sequentially
-    model.add(LSTM(40, 
-                    activation = 'tanh',
-                    input_shape = (n_input, n_features),
-                    return_sequences=True,
-                    kernel_regularizer=regularizers.L2(0.001),
-                    activity_regularizer=regularizers.L2(0.001)))
-    model.add(Dropout(0.01))
-    model.add(LSTM(30, 
-                    activation = 'tanh', 
-                    input_shape = (n_input, n_features),
-                    return_sequences=True,
-                    kernel_regularizer=regularizers.L2(0.001),
-                    activity_regularizer=regularizers.L2(0.001)))
-    model.add(Dropout(0.1))
-    model.add(LSTM(48, 
-                    activation = 'tanh', 
-                    input_shape = (n_input, n_features),
-                    return_sequences=False,
-                    kernel_regularizer=regularizers.L2(0.001),
-                    activity_regularizer=regularizers.L2(0.001)))
-    model.add(Dropout(0.01))
-    model.add(Dense(1))
-    model.compile(optimizer = Adam(learning_rate=0.0001,
-                                clipnorm = 1), 
-                loss = 'mse')
-    gen_output = TimeseriesGenerator(scaled_test, scaled_test, 
-                                    length = n_input,
-                                    batch_size = 1000)
+    validation = TimeseriesGenerator(scaled_test, scaled_test, 
+                                length = n_input,
+                                batch_size = 1000)
+
+    # Load best model from HT
+    model = tf.keras.models.load_model("Models/Bayes_HT_AAPL.keras")
 
     with tf.device('/device:GPU:0'): 
-        model.fit(generator, epochs = 10000, validation_data = gen_output)
+        model.fit(training, epochs = 2000, validation_data = validation)
 
-    duration = 7
+    duration = 14
     test_predictions = []
-    first_eval_batch = true_scaled_train[-n_input:]
+    first_eval_batch = scaled_true_train[-n_input:]
     current_batch = first_eval_batch.reshape((1, n_input, n_features))
     for i in range(duration):
         current_pred = model.predict(current_batch)[0]

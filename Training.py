@@ -631,8 +631,8 @@ NVDA = decomposition.seasonal
 # Splitting dataset for cross-validation
 train_test_split = 0.9
 train_size = int(len(NVDA) * train_test_split) # Use 90% of data for training
-train = NVDA.iloc[0:train_size]['Close/Last'] # Selecting closing price as target
-test = NVDA.iloc[train_size:len(NVDA)] ['Close/Last']
+train = NVDA.iloc[0:train_size] # Selecting closing price as target
+test = NVDA.iloc[train_size:len(NVDA)]
 test = pd.to_numeric(test)
 
 # Reshaping data sets from Panda Series to 1D Array
