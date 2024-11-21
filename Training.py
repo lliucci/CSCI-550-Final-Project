@@ -41,6 +41,8 @@ decomposition = sm.tsa.seasonal_decompose(AAPL['Close/Last'], model='additive', 
 # Extract stationary TS
 AAPL = decomposition.seasonal
 
+AAPL.to_csv("Data/Stationary_AAPL.csv")
+
 # Splitting dataset for cross-validation
 train_test_split = 0.9
 train_size = int(len(AAPL) * train_test_split) # Use 90% of data for training

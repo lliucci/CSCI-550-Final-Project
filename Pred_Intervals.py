@@ -64,7 +64,7 @@ mbb = MovingBlockBootstrap(n_bootstraps=n_bootstraps, rng=rng, block_length=bloc
 
 Boots = []
 
-for j in range(10):
+for j in range(20):
     
     # Generate bootstrapped samples
     return_indices = False
@@ -114,7 +114,7 @@ for j in range(10):
     model = tf.keras.models.load_model("Models/Bayes_HT_AAPL.keras")
 
     with tf.device('/device:GPU:0'): 
-        model.fit(training, epochs = 2000, validation_data = validation)
+        model.fit(training, epochs = 1000, validation_data = validation)
 
     duration = 14
     test_predictions = []
@@ -136,6 +136,19 @@ Plotting = [
 # Save as csv
 df = pd.DataFrame(Plotting)
 df.to_csv("AAPL_Pred_Intervals.csv")
+
+Plotting = pd.read_csv("AAPL_Pred_Intervals.csv", index_col = 0)
+
+# Plots bootstrapped predictions
+fig = plt.figure(figsize=(10,5))
+ax = fig.add_subplot(111)
+plt.plot(true_test, color = 'b', label = "Observed")
+plt.plot(Plotting, alpha = 0.1, color = 'r')
+plt.legend()
+ax.set_ylabel("Depth (feet)")
+ax.set_xlabel("Day's Past Training Data")
+ax.set_title("Comparison of Forecasts")
+plt.show()
 
 # ------------------------------------------------------------------------
 # AMZN -------------------------------------------------------------------
