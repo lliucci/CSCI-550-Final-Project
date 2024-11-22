@@ -24,8 +24,8 @@ AAPL = yf.download('AAPL', start = start_date,
 decomposition = sm.tsa.seasonal_decompose(AAPL['Close'], model='additive', period = 365)
 
 # Plot the components
-decomposition.plot()
-plt.show()
+# decomposition.plot()
+# plt.show()
 
 # Extract stationary TS
 AAPL = decomposition.seasonal
@@ -49,8 +49,8 @@ AMZN = yf.download('AMZN', start = start_date,
 decomposition = sm.tsa.seasonal_decompose(AMZN['Close'], model='additive', period = 365)
 
 # Plot the components
-decomposition.plot()
-plt.show()
+# decomposition.plot()
+# plt.show()
 
 # Extract stationary TS
 AMZN = decomposition.seasonal
@@ -74,8 +74,8 @@ CAT = yf.download('CAT', start = start_date,
 decomposition = sm.tsa.seasonal_decompose(CAT['Close'], model='additive', period = 365)
 
 # Plot the components
-decomposition.plot()
-plt.show()
+# decomposition.plot()
+# plt.show()
 
 # Extract stationary TS
 CAT = decomposition.seasonal
@@ -99,8 +99,8 @@ NVDA = yf.download('NVDA', start = start_date,
 decomposition = sm.tsa.seasonal_decompose(NVDA['Close'], model='additive', period = 365)
 
 # Plot the components
-decomposition.plot()
-plt.show()
+# decomposition.plot()
+# plt.show()
 
 # Extract stationary TS
 NVDA = decomposition.seasonal
