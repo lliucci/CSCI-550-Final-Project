@@ -17,9 +17,10 @@ from pmdarima.arima import auto_arima
 
 ##########################################################################
 #                                                                        #
-#             Before using this script, visit                            #
-#             the NASDAQ website and download                            #
-#             the most recent historical data                            #
+#             Before using this script, run the                          #
+#             data preprocessing script to read                          #
+#             in the most current data from                              #
+#                  Yahoo Finance                                         #
 #                                                                        #
 ##########################################################################
 
@@ -103,7 +104,7 @@ model_arima = auto_arima(TS)
 model_arima.fit(TS)
 model_arima.summary()
 arima_preds = model_arima.predict(n_periods = 31)
-forecast = pd.DataFrame(arima_preds, index = TS.index[train_size:train_size + 31], columns=['Prediction'])
+forecast = pd.DataFrame(arima_preds, index = AAPL.index[train_size:train_size + 31], columns=['Prediction'])
 
 # Fit HW
 HW = ExponentialSmoothing(TS, trend = 'add', seasonal = 'add', seasonal_periods = 365).fit()
@@ -205,7 +206,7 @@ model_arima = auto_arima(TS)
 model_arima.fit(TS)
 model_arima.summary()
 arima_preds = model_arima.predict(n_periods = 31)
-forecast = pd.DataFrame(arima_preds, index = TS.index[train_size:train_size + 31], columns=['Prediction'])
+forecast = pd.DataFrame(arima_preds, index = AMZN.index[train_size:train_size + 31], columns=['Prediction'])
 
 # Fit HW
 HW = ExponentialSmoothing(TS, trend = 'add', seasonal = 'add', seasonal_periods = 365).fit()
@@ -242,7 +243,6 @@ train_test_split = 0.9
 train_size = int(len(CAT) * train_test_split) # Use 90% of data for training
 train = CAT.iloc[0:train_size] # Selecting closing price as target
 test = CAT.iloc[train_size:len(CAT)]
-test = pd.to_numeric(test)
 
 # Reshaping data sets from Panda Series to 1D Array
 train = train.values.flatten()
@@ -255,11 +255,6 @@ stage_transformer = RobustScaler()
 stage_transformer = stage_transformer.fit(train)
 scaled_train = stage_transformer.transform(train)
 scaled_test = stage_transformer.transform(test)
-
-# Whole time-series for forecasting
-TS = CAT.values.flatten()
-TS = TS.reshape(-1,1)
-TS_Scaled = stage_transformer.transform(TS)
 
 # Define inputs  
 n_input = 31 # use last months information to predict next day
@@ -307,7 +302,7 @@ model_arima = auto_arima(TS)
 model_arima.fit(TS)
 model_arima.summary()
 arima_preds = model_arima.predict(n_periods = 31)
-forecast = pd.DataFrame(arima_preds, index = TS.index[train_size:train_size + 31], columns=['Prediction'])
+forecast = pd.DataFrame(arima_preds, index = CAT.index[train_size:train_size + 31], columns=['Prediction'])
 
 # Fit HW
 HW = ExponentialSmoothing(TS, trend = 'add', seasonal = 'add', seasonal_periods = 365).fit()
@@ -409,7 +404,7 @@ model_arima = auto_arima(TS)
 model_arima.fit(TS)
 model_arima.summary()
 arima_preds = model_arima.predict(n_periods = 31)
-forecast = pd.DataFrame(arima_preds, index = TS.index[train_size:train_size + 31], columns=['Prediction'])
+forecast = pd.DataFrame(arima_preds, index = NVDA.index[train_size:train_size + 31], columns=['Prediction'])
 
 # Fit HW
 HW = ExponentialSmoothing(TS, trend = 'add', seasonal = 'add', seasonal_periods = 365).fit()
