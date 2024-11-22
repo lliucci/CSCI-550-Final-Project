@@ -2,10 +2,7 @@
 # Libraries ------------------------------------------------------------
 # ----------------------------------------------------------------------
 
-import numpy as np
 import pandas as pd
-import statsmodels.api as sm
-import matplotlib.pyplot as plt
 from keras.preprocessing.sequence import TimeseriesGenerator
 from sklearn.preprocessing import RobustScaler
 from keras.models import Sequential

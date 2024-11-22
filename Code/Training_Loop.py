@@ -4,19 +4,10 @@
 
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from keras.preprocessing.sequence import TimeseriesGenerator
 from sklearn.preprocessing import RobustScaler
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
-from keras.layers import Dropout
 import tensorflow as tf
-from keras.optimizers import Adam
-import time
-from keras import regularizers
-from keras_tuner.tuners import BayesianOptimization
 
 # Confirming GPU is being used
 tf.test.is_gpu_available()
