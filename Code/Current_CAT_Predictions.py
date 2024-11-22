@@ -27,26 +27,16 @@ from matplotlib.ticker import MaxNLocator
 # ------------------------------------------------------------------------
 
 # Reading in data
-CAT = pd.read_csv("Data/CAT_Current.csv",index_col= "Date", parse_dates = True)
-CAT['Close/Last'] = CAT['Close/Last'].str.replace('$', '')
-CAT = CAT.reindex(index=AAPL.index[::-1])
+CAT_Raw = pd.read_csv("Data/Stationary_CAT.csv",index_col= "Date", parse_dates = True)
 
-# Decomposing for stationarity
-decomposition = sm.tsa.seasonal_decompose(CAT['Close/Last'], model='additive', period = 365)
-
-# Plot the components
-decomposition.plot()
-plt.show()
-
-# Extract stationary TS
-CAT = decomposition.seasonal
+Last_Month = CAT_Raw.iloc[-31:]
+CAT = CAT_Raw.iloc[0:-32]
 
 # Splitting dataset for cross-validation
 train_test_split = 0.9
 train_size = int(len(CAT) * train_test_split) # Use 90% of data for training
 train = CAT.iloc[0:train_size] # Selecting closing price as target
 test = CAT.iloc[train_size:len(CAT)]
-test = pd.to_numeric(test)
 
 # Reshaping data sets from Panda Series to 1D Array
 train = train.values.flatten()

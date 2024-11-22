@@ -36,7 +36,6 @@ train_test_split = 0.9
 train_size = int(len(AAPL) * train_test_split) # Use 90% of data for training
 train = AAPL.iloc[0:train_size] # Selecting closing price as target
 test = AAPL.iloc[train_size:len(AAPL)]
-test = pd.to_numeric(test)
 
 # Reshaping data sets from Panda Series to 1D Array
 train = train.values.flatten()

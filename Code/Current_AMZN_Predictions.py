@@ -22,30 +22,20 @@ from matplotlib.ticker import MaxNLocator
 ##########################################################################
 
 # ------------------------------------------------------------------------
-# AAPL -------------------------------------------------------------------
+# AMZN -------------------------------------------------------------------
 # ------------------------------------------------------------------------
 
 # Reading in data
-AMZN = pd.read_csv("Data/AMZN_Current.csv",index_col= "Date", parse_dates = True)
-AMZN['Close/Last'] = AMZN['Close/Last'].str.replace('$', '')
-AMZN = AMZN.reindex(index=AMZN.index[::-1])
+AMZN_Raw = pd.read_csv("Data/Stationary_AMZN.csv",index_col= "Date", parse_dates = True)
 
-# Decomposing for stationarity
-decomposition = sm.tsa.seasonal_decompose(AMZN['Close/Last'], model='additive', period = 365)
-
-# Plot the components
-decomposition.plot()
-plt.show()
-
-# Extract stationary TS
-AMZN = decomposition.seasonal
+Last_Month = AMZN_Raw.iloc[-31:]
+AMZN = AMZN_Raw.iloc[0:-32]
 
 # Splitting dataset for cross-validation
 train_test_split = 0.9
 train_size = int(len(AMZN) * train_test_split) # Use 90% of data for training
 train = AMZN.iloc[0:train_size] # Selecting closing price as target
 test = AMZN.iloc[train_size:len(AMZN)]
-test = pd.to_numeric(test)
 
 # Reshaping data sets from Panda Series to 1D Array
 train = train.values.flatten()

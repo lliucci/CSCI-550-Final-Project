@@ -28,15 +28,14 @@ from matplotlib.ticker import MaxNLocator
 # Reading in data
 NVDA_Raw = pd.read_csv("Data/Stationary_NVDA.csv",index_col= "Date", parse_dates = True)
 
-Last_Month = NVDA_Raw.iloc[-30:]
-NVDA = NVDA_Raw.iloc[0:-31]
+Last_Month = NVDA_Raw.iloc[-31:]
+NVDA = NVDA_Raw.iloc[0:-32]
 
 # Splitting dataset for cross-validation
 train_test_split = 0.9
 train_size = int(len(NVDA) * train_test_split) # Use 90% of data for training
 train = NVDA.iloc[0:train_size] # Selecting closing price as target
 test = NVDA.iloc[train_size:len(NVDA)]
-test = pd.to_numeric(test)
 
 # Reshaping data sets from Panda Series to 1D Array
 train = train.values.flatten()
