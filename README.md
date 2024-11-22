@@ -1,7 +1,7 @@
 # CSCI-550-Final-Project
 
 ## Directory
-- Data: Contains all raw data from NASDAQ website and Stationary Data from Preprocessing Script
+- Data: Contains all raw data from NASDAQ website, Stationary Data from Preprocessing Script, and Predictions for Prediction Intervals from the Tempest cluster.
 - Models: Optimized models obtained from Tempest Cluster
 - Training: Folder containing graphics of training process. Created in `Training_Loop.py`
 - Comparing_Multiple_LSTMs.py: Trains multiple LSTMs on the same data with the same architecture to show variability
