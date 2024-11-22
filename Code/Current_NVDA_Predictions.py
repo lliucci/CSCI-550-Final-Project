@@ -13,7 +13,6 @@ import tensorflow as tf
 import datetime
 from matplotlib.ticker import MaxNLocator
 
-
 ##########################################################################
 #                                                                        #
 #             Before using this script, visit                            #
@@ -27,19 +26,10 @@ from matplotlib.ticker import MaxNLocator
 # ------------------------------------------------------------------------
 
 # Reading in data
-NVDA = pd.read_csv("Data/NVDA_Current.csv",index_col= "Date", parse_dates = True)
-NVDA['Close/Last'] = NVDA['Close/Last'].str.replace('$', '')
-NVDA = NVDA.reindex(index=NVDA.index[::-1])
+NVDA_Raw = pd.read_csv("Data/Stationary_NVDA.csv",index_col= "Date", parse_dates = True)
 
-# Decomposing for stationarity
-decomposition = sm.tsa.seasonal_decompose(NVDA['Close/Last'], model='additive', period = 365)
-
-# Plot the components
-decomposition.plot()
-plt.show()
-
-# Extract stationary TS
-NVDA = decomposition.seasonal
+Last_Month = NVDA_Raw.iloc[-30:]
+NVDA = NVDA_Raw.iloc[0:-31]
 
 # Splitting dataset for cross-validation
 train_test_split = 0.9
@@ -83,7 +73,7 @@ best_model_NVDA = tf.keras.models.load_model('Models/Bayes_HT_NVDA.keras')
 
 # Fitting model without loop
 with tf.device('/device:GPU:0'): 
-   best_model_NVDA.fit(training, epochs = 5000, validation_data = validation)
+   best_model_NVDA.fit(training, epochs = 7500, validation_data = validation)
    
 # Whole time-series for forecasting
 TS = NVDA.values.flatten()
@@ -96,24 +86,26 @@ test_predictions = []
 first_eval_batch = TS_Scaled[-n_input:]
 current_batch = first_eval_batch.reshape((1, n_input, n_features))
 for i in range(duration):
-   current_pred = best_model_AAPL.predict(current_batch)[0]
+   current_pred = best_model_NVDA.predict(current_batch)[0]
    test_predictions.append(current_pred) 
    current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
 true_predictions = stage_transformer.inverse_transform(test_predictions)
   
 # Current date 
-start_date = datetime.datetime.now() 
+start_date = Last_Month.index[0]
 # Generate list of dates 
 date_sequence = pd.date_range(start=start_date, periods=duration, freq='B')
-  
+
 fig = plt.figure(figsize=(10,5))
 ax = fig.add_subplot(111)
 plt.plot(date_sequence, true_predictions, color = 'r', label = "LSTM Predictions")
+plt.plot(Last_Month, color = 'b', label = "NVDA Stock Last Month")
 plt.legend()
-ax.set_ylabel("Closing Price (Shifted & Transformed)")
+ax.set_ylabel("Closing Price (stationary)")
 ax.set_xlabel("Date")
 ax.set_title("LSTM Predictions on NVDA Stock")
 plt.xticks(rotation = 45, ha = 'right', fontsize = 6)
-ax.xaxis.set_major_locator(MaxNLocator(nbins=10))
+ax.xaxis.set_major_locator(MaxNLocator(nbins=31))
 fig.tight_layout()
-plt.show()
+plt.savefig("Figures/NVDA_Last_Month_&_Next_Month.png")
+plt.clf()

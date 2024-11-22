@@ -2,6 +2,10 @@ library(tidyverse)
 library(bayestestR)
 theme_set(theme_bw())
 
+# ---------------------------------------------------------------------------------
+# AAPL ----------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------
+
 AAPL_Pred_Intervals = read_csv("Data/AAPL_Pred_Intervals.csv") %>% select(-1)
 AAPL = read_csv("Data/Stationary_AAPL.csv")
 
@@ -33,7 +37,7 @@ Credible_Intervals = Plotting %>%
     scale_x_continuous(breaks = 5)
 
 ggsave(Credible_Intervals,
-    filename = "Figures/Credible_Intervals_Example.png",
+    filename = "Figures/AAPL_Credible_Intervals.png",
     scale = 2,
     width = 1600,
     height = 800,

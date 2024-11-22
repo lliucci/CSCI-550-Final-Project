@@ -26,19 +26,10 @@ from matplotlib.ticker import MaxNLocator
 # ------------------------------------------------------------------------
 
 # Reading in data
-AAPL = pd.read_csv("Data/AAPL_Current.csv",index_col= "Date", parse_dates = True)
-AAPL['Close/Last'] = AAPL['Close/Last'].str.replace('$', '')
-AAPL = AAPL.reindex(index=AAPL.index[::-1])
+AAPL_Raw = pd.read_csv("Data/Stationary_AAPL.csv",index_col= "Date", parse_dates = True)
 
-# Decomposing for stationarity
-decomposition = sm.tsa.seasonal_decompose(AAPL['Close/Last'], model='additive', period = 365)
-
-# Plot the components
-decomposition.plot()
-plt.show()
-
-# Extract stationary TS
-AAPL = decomposition.seasonal
+Last_Month = AAPL_Raw.iloc[-31:]
+AAPL = AAPL_Raw.iloc[0:-32]
 
 # Splitting dataset for cross-validation
 train_test_split = 0.9
@@ -82,15 +73,15 @@ best_model_AAPL = tf.keras.models.load_model('Models/Bayes_HT_AAPL.keras')
 
 # Fitting model without loop
 with tf.device('/device:GPU:0'): 
-   best_model_AAPL.fit(training, epochs = 5000, validation_data = validation)
-
+   best_model_AAPL.fit(training, epochs = 7500, validation_data = validation)
+   
 # Whole time-series for forecasting
 TS = AAPL.values.flatten()
 TS = TS.reshape(-1,1)
 TS_Scaled = stage_transformer.transform(TS)
 
 # Forecasting
-duration = 62 # two week predictions
+duration = 62 # two month predictions
 test_predictions = []
 first_eval_batch = TS_Scaled[-n_input:]
 current_batch = first_eval_batch.reshape((1, n_input, n_features))
@@ -101,18 +92,20 @@ for i in range(duration):
 true_predictions = stage_transformer.inverse_transform(test_predictions)
   
 # Current date 
-start_date = datetime.datetime.now() 
+start_date = Last_Month.index[0]
 # Generate list of dates 
 date_sequence = pd.date_range(start=start_date, periods=duration, freq='B')
-  
+
 fig = plt.figure(figsize=(10,5))
 ax = fig.add_subplot(111)
 plt.plot(date_sequence, true_predictions, color = 'r', label = "LSTM Predictions")
+plt.plot(Last_Month, color = 'b', label = "AAPL Stock Last Month")
 plt.legend()
-ax.set_ylabel("Closing Price (Shifted & Transformed)")
+ax.set_ylabel("Closing Price (stationary)")
 ax.set_xlabel("Date")
 ax.set_title("LSTM Predictions on AAPL Stock")
 plt.xticks(rotation = 45, ha = 'right', fontsize = 6)
-ax.xaxis.set_major_locator(MaxNLocator(nbins=10))
+ax.xaxis.set_major_locator(MaxNLocator(nbins=31))
 fig.tight_layout()
-plt.show()
+plt.savefig("Figures/AAPL_Last_Month_&_Next_Month.png")
+plt.clf()
