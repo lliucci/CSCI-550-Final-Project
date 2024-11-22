@@ -63,45 +63,18 @@ for layer in best_model_AAPL.layers:
     layer_config = layer.get_config()
     print(layer_config)  
 
-# Training Best AAPL Model
-
-for j in range(12):
-    
-   # Fitting model  
-   with tf.device('/device:GPU:0'): 
-        best_model_AAPL.fit(training, epochs = 1000, validation_data = validation)
-
-   duration = 14 # two week predictions
-   test_predictions = []
-   first_eval_batch = scaled_train[-n_input:]
-   current_batch = first_eval_batch.reshape((1, n_input, n_features))
-   for i in range(duration):
-      current_pred = best_model_AAPL.predict(current_batch)[0]
-      test_predictions.append(current_pred) 
-      current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
-   true_predictions = stage_transformer.inverse_transform(test_predictions)
-   
-   fig = plt.figure(figsize=(10,5))
-   ax = fig.add_subplot(111)
-   plt.plot(test[0:duration], color = 'b', label = "AAPL")
-   plt.plot(true_predictions, color = 'r', label = "LSTM Predictions")
-   plt.legend()
-   ax.set_ylabel("Response")
-   ax.set_xlabel("Day's Past Training Data")
-   ax.set_title("LSTM Predictions on Observed AAPL Stock")
-   plt.savefig(f"Training/Local/AAPL_model_{j}.png")
-   plt.clf()
-
-
 # Fitting model without loop
 with tf.device('/device:GPU:0'): 
-   best_model_AAPL.fit(training, epochs = 500, validation_data = validation)
+   best_model_AAPL.fit(training, epochs = 5000, validation_data = validation)
 
 # Check when loss levels out
 loss_per_epoch = best_model_AAPL.history.history["loss"]
 val_loss_per_epoch = best_model_AAPL.history.history['val_loss']
 plt.plot(range(len(loss_per_epoch)), loss_per_epoch, color = 'r', label = "Training Loss")
 plt.plot(range(len(loss_per_epoch)), val_loss_per_epoch, color = 'b', label = "Validation Loss")
+plt.xlabel("Iteration of Training")
+plt.ylabel("MSE")
+plt.title("AAPL Stock Loss vs. Epochs")
 plt.legend()
 plt.show()
 
@@ -164,6 +137,9 @@ loss_per_epoch = best_model_AMZN.history.history["loss"]
 val_loss_per_epoch = best_model_AMZN.history.history['val_loss']
 plt.plot(range(len(loss_per_epoch)), loss_per_epoch, color = 'r', label = "Training Loss")
 plt.plot(range(len(loss_per_epoch)), val_loss_per_epoch, color = 'b', label = "Validation Loss")
+plt.xlabel("Iteration of Training")
+plt.ylabel("MSE")
+plt.title("AMZN Stock Loss vs. Epochs")
 plt.legend()
 plt.show()
 
@@ -226,6 +202,9 @@ loss_per_epoch = best_model_CAT.history.history["loss"]
 val_loss_per_epoch = best_model_CAT.history.history['val_loss']
 plt.plot(range(len(loss_per_epoch)), loss_per_epoch, color = 'r', label = "Training Loss")
 plt.plot(range(len(loss_per_epoch)), val_loss_per_epoch, color = 'b', label = "Validation Loss")
+plt.xlabel("Iteration of Training")
+plt.ylabel("MSE")
+plt.title("CAT Stock Loss vs. Epochs")
 plt.legend()
 plt.show()
 
@@ -288,5 +267,8 @@ loss_per_epoch = best_model_NVDA.history.history["loss"]
 val_loss_per_epoch = best_model_NVDA.history.history['val_loss']
 plt.plot(range(len(loss_per_epoch)), loss_per_epoch, color = 'r', label = "Training Loss")
 plt.plot(range(len(loss_per_epoch)), val_loss_per_epoch, color = 'b', label = "Validation Loss")
+plt.xlabel("Iteration of Training")
+plt.ylabel("MSE")
+plt.title("NVDA Stock Loss vs. Epochs")
 plt.legend()
 plt.show()
