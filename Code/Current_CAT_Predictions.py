@@ -7,7 +7,6 @@ import pandas as pd
 import tensorflow as tf
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
-import tensorflow as tf
 from keras.preprocessing.sequence import TimeseriesGenerator
 from sklearn.preprocessing import RobustScaler
 import datetime
@@ -23,7 +22,7 @@ from matplotlib.ticker import MaxNLocator
 ##########################################################################
 
 # ------------------------------------------------------------------------
-# CAT --------------------------------------------------------------------
+# CAT -------------------------------------------------------------------
 # ------------------------------------------------------------------------
 
 # Reading in data
@@ -73,37 +72,69 @@ best_model_CAT = tf.keras.models.load_model('Models/Bayes_HT_CAT.keras')
 
 # Fitting model without loop
 with tf.device('/device:GPU:0'): 
-   best_model_CAT.fit(training, epochs = 5000, validation_data = validation)
-
+   best_model_CAT.fit(training, epochs = 7500, validation_data = validation)
+   
 # Whole time-series for forecasting
 TS = CAT.values.flatten()
 TS = TS.reshape(-1,1)
 TS_Scaled = stage_transformer.transform(TS)
 
-# Forecasting
-duration = 62 
-test_predictions = []
-first_eval_batch = TS_Scaled[-n_input:]
-current_batch = first_eval_batch.reshape((1, n_input, n_features))
-for i in range(duration):
-   current_pred = best_model_CAT.predict(current_batch)[0]
-   test_predictions.append(current_pred) 
-   current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
-true_predictions = stage_transformer.inverse_transform(test_predictions)
-  
+# Define Forecast Duration
+duration = 31
+
+Predictions = []
+
+for j in range(5):
+   
+   # Load best model from HT
+   model = tf.keras.models.load_model("Models/Bayes_HT_CAT.keras")
+
+   with tf.device('/device:GPU:0'): 
+      model.fit(training, epochs = 7500, validation_data = validation)
+      
+   model.save(f'Models/CAT_Model_{j}.keras')
+
+   test_predictions = []
+   first_eval_batch = TS_Scaled[-n_input:]
+   current_batch = first_eval_batch.reshape((1, n_input, n_features))
+   for i in range(duration):
+      current_pred = model.predict(current_batch)[0]
+      test_predictions.append(current_pred) 
+      current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
+   true_predictions = stage_transformer.inverse_transform(test_predictions)
+   locals()[f'Model_{j}_Predictions'] = true_predictions
+   Predictions.append([z[0] for z in true_predictions])
+
+# Data frame to be saved
+CAT_Last_Month_Preds = [
+    [i[e] for i in Predictions] #... take the eth element from ith array
+    for e in range(len(Predictions[0])) # for each e in 0:30...
+    ]
+
+# Save current predictions
+df = pd.DataFrame(CAT_Last_Month_Preds)
+df.to_csv("Data/CAT_Last_Month_Preds.csv")
+
 # Current date 
-start_date = datetime.datetime.now() 
+start_date = Last_Month.index[0]
 # Generate list of dates 
 date_sequence = pd.date_range(start=start_date, periods=duration, freq='B')
-  
+
+# Current date 
+start_date = Last_Month.index[0]
+# Generate list of dates 
+date_sequence = pd.date_range(start=start_date, periods=duration, freq='B')
+
 fig = plt.figure(figsize=(10,5))
 ax = fig.add_subplot(111)
-plt.plot(date_sequence, true_predictions, color = 'r', label = "LSTM Predictions")
+plt.plot(date_sequence, CAT_Last_Month_Preds, color = 'r')
+plt.plot(Last_Month, color = 'b', label = "CAT Stock Last Month")
 plt.legend()
-ax.set_ylabel("Closing Price (Shifted & Transformed)")
+ax.set_ylabel("Closing Price (stationary)")
 ax.set_xlabel("Date")
 ax.set_title("LSTM Predictions on CAT Stock")
 plt.xticks(rotation = 45, ha = 'right', fontsize = 6)
-ax.xaxis.set_major_locator(MaxNLocator(nbins=10))
+ax.xaxis.set_major_locator(MaxNLocator(nbins=31))
 fig.tight_layout()
-plt.show()
+plt.savefig("Figures/CAT_Last_Month.png")
+plt.clf()
