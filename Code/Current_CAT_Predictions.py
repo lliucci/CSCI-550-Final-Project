@@ -73,7 +73,7 @@ best_model_CAT = tf.keras.models.load_model('Models/Bayes_HT_CAT.keras')
 # Fitting model without loop
 with tf.device('/device:GPU:0'): 
    best_model_CAT.fit(training, epochs = 7500, validation_data = validation)
-   
+
 # Whole time-series for forecasting
 TS = CAT.values.flatten()
 TS = TS.reshape(-1,1)
@@ -84,15 +84,17 @@ duration = 31
 
 Predictions = []
 
-for j in range(5):
+for j in range(1):
    
    # Load best model from HT
-   model = tf.keras.models.load_model("Models/Bayes_HT_CAT.keras")
+   # model = tf.keras.models.load_model("Models/Bayes_HT_CAT.keras")
 
-   with tf.device('/device:GPU:0'): 
-      model.fit(training, epochs = 7500, validation_data = validation)
+   # with tf.device('/device:GPU:0'): 
+   #    model.fit(training, epochs = 7500, validation_data = validation)
       
-   model.save(f'Models/CAT_Model_{j}.keras')
+   # model.save(f'Models/CAT_Model_{j}.keras')
+   
+   model = tf.keras.models.load_model("Models/CAT_Model_0.keras")
 
    test_predictions = []
    first_eval_batch = TS_Scaled[-n_input:]

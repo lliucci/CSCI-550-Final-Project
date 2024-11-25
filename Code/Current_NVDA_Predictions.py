@@ -73,7 +73,7 @@ best_model_NVDA = tf.keras.models.load_model('Models/Bayes_HT_NVDA.keras')
 # Fitting model without loop
 with tf.device('/device:GPU:0'): 
    best_model_NVDA.fit(training, epochs = 7500, validation_data = validation)
-   
+
 # Whole time-series for forecasting
 TS = NVDA.values.flatten()
 TS = TS.reshape(-1,1)
@@ -84,16 +84,18 @@ duration = 31
 
 Predictions = []
 
-for j in range(5):
+for j in range(1):
    
    # Load best model from HT
-   model = tf.keras.models.load_model("Models/Bayes_HT_NVDA.keras")
+   # model = tf.keras.models.load_model("Models/Bayes_HT_NVDA.keras")
 
-   with tf.device('/device:GPU:0'): 
-      model.fit(training, epochs = 7500, validation_data = validation)
+   # with tf.device('/device:GPU:0'): 
+   #    model.fit(training, epochs = 7500, validation_data = validation)
       
-   model.save(f'Models/NVDA_Model_{j}.keras')
-
+   # model.save(f'Models/NVDA_Model_{j}.keras')
+   
+   model = tf.keras.models.load_model("Models/NVDA_Model_0.keras")
+   
    test_predictions = []
    first_eval_batch = TS_Scaled[-n_input:]
    current_batch = first_eval_batch.reshape((1, n_input, n_features))

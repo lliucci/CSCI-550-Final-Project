@@ -73,7 +73,7 @@ best_model_AMZN = tf.keras.models.load_model('Models/Bayes_HT_AMZN.keras')
 # Fitting model without loop
 with tf.device('/device:GPU:0'): 
    best_model_AMZN.fit(training, epochs = 7500, validation_data = validation)
-   
+
 # Whole time-series for forecasting
 TS = AMZN.values.flatten()
 TS = TS.reshape(-1,1)
@@ -84,15 +84,17 @@ duration = 31
 
 Predictions = []
 
-for j in range(5):
+for j in range(1):
    
    # Load best model from HT
-   model = tf.keras.models.load_model("Models/Bayes_HT_AMZN.keras")
+   # model = tf.keras.models.load_model("Models/Bayes_HT_AMZN.keras")
 
-   with tf.device('/device:GPU:0'): 
-      model.fit(training, epochs = 7500, validation_data = validation)
+   # with tf.device('/device:GPU:0'): 
+   #    model.fit(training, epochs = 7500, validation_data = validation)
       
-   model.save(f'Models/AMZN_Model_{j}.keras')
+   # model.save(f'Models/AMZN_Model_{j}.keras')
+
+   model = tf.keras.models.load_model("Models/AMZN_Model_0.keras")
 
    test_predictions = []
    first_eval_batch = TS_Scaled[-n_input:]

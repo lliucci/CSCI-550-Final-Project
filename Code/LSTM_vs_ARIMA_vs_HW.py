@@ -72,11 +72,7 @@ validation = TimeseriesGenerator(scaled_test, scaled_test,
                                 batch_size = 1000)
 
 # Load best model
-best_model_AAPL = tf.keras.models.load_model('Models/Bayes_HT_AAPL.keras')  
-
-# Fitting model without loop
-with tf.device('/device:GPU:0'): 
-   best_model_AAPL.fit(training, epochs = 5000, validation_data = validation)
+best_model_AAPL = tf.keras.models.load_model('Models/AAPL_Model_0.keras')  
    
 # Whole time-series for forecasting
 TS = AAPL.values.flatten()
@@ -174,11 +170,7 @@ validation = TimeseriesGenerator(scaled_test, scaled_test,
                                 batch_size = 1000)
 
 # Load best model
-best_model_AMZN = tf.keras.models.load_model('Models/Bayes_HT_AMZN.keras')  
-
-# Fitting model without loop
-with tf.device('/device:GPU:0'): 
-   best_model_AMZN.fit(training, epochs = 5000, validation_data = validation)
+best_model_AMZN = tf.keras.models.load_model('Models/AMZN_Model_0.keras')  
    
 # Whole time-series for forecasting
 TS = AMZN.values.flatten()
@@ -270,11 +262,7 @@ validation = TimeseriesGenerator(scaled_test, scaled_test,
                                 batch_size = 1000)
 
 # Load best model
-best_model_CAT = tf.keras.models.load_model('Models/Bayes_HT_CAT.keras')  
-
-# Fitting model without loop
-with tf.device('/device:GPU:0'): 
-   best_model_CAT.fit(training, epochs = 5000, validation_data = validation)
+best_model_CAT = tf.keras.models.load_model('Models/CAT_Model_0.keras')  
    
 # Whole time-series for forecasting
 TS = CAT.values.flatten()
@@ -372,11 +360,7 @@ validation = TimeseriesGenerator(scaled_test, scaled_test,
                                 batch_size = 1000)
 
 # Load best model
-best_model_NVDA = tf.keras.models.load_model('Models/Bayes_HT_NVDA.keras')  
-
-# Fitting model without loop
-with tf.device('/device:GPU:0'): 
-   best_model_NVDA.fit(training, epochs = 5000, validation_data = validation)
+best_model_NVDA = tf.keras.models.load_model('Models/NVDA_Model_0.keras')  
    
 # Whole time-series for forecasting
 TS = NVDA.values.flatten()
